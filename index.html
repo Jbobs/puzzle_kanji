@@ -555,59 +555,47 @@ function initLevelScreen(){
 
 function renderLevelMap(){
   const path=document.getElementById('level-path');
+  if(!path)return;
   path.innerHTML='';
+  // コンテナをインラインスタイルで設定
+  path.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:44px 4px 4px;position:relative;margin-bottom:8px';
+
   LEVELS.forEach((lv,idx)=>{
     const lc=LC[lv];const info=LEVEL_INFO[lv];
     const unlocked=lvlUnlocked(idx);
-    const done=lvlStages(lv).filter(s=>prog.c.includes(s.id)).length;
+    const done=lvlStages(lv).filter(st=>prog.c.includes(st.id)).length;
     const isCur=idx===lvlCharPos;
-    const outer=document.createElement('div');outer.className='wnode-wrap';
-    // キャラ（現在位置のみ表示）
-    const ch=document.createElement('div');ch.className='wn-char';
-    ch.textContent=isCur?'🧑‍🎓':' ';
-    outer.appendChild(ch);
-    // ノード
-    const node=document.createElement('button');
-    node.className='wnode'+(unlocked?(isCur?' current':''):' locked');
-    node.style.borderColor=unlocked?(isCur?lc:lc+'70'):'#1e2d4a';
-    node.style.color=unlocked?lc:'#2d3748';
-    node.style.background=unlocked&&isCur?lc+'18':'var(--bg2)';
-    if(!unlocked)node.disabled=true;
-    node.innerHTML=`<span style="font-size:16px">${unlocked?info.emoji:'🔒'}</span><span style="font-size:10px;font-weight:700;margin-top:2px">${lv}</span><span style="font-size:8px;opacity:.7">${unlocked?done+'/5':''}</span>`;
-    node.onclick=()=>clickLevel(idx);
-    outer.appendChild(node);
-    path.appendChild(outer);
+
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;flex:1;position:relative;z-index:2';
+
+    // キャラ（現在位置のみ）
+    const charDiv=document.createElement('div');
+    charDiv.style.cssText='height:30px;display:flex;align-items:flex-end;justify-content:center;position:absolute;top:-36px;left:0;right:0;font-size:22px;pointer-events:none';
+    charDiv.textContent=isCur?'🧑‍🎓':'';
+    wrap.appendChild(charDiv);
+
+    // ノードボタン
+    const btn=document.createElement('button');
+    const bc=unlocked?(isCur?lc:lc+'99'):'#1e2d4a';
+    const bg=unlocked&&isCur?lc+'22':'#080d1e';
+    const col=unlocked?lc:'#334155';
+    const shadow=isCur?`0 0 16px ${lc}88`:'none';
+    const anim=isCur?'pulse 2s infinite':'none';
+    btn.style.cssText=`width:60px;height:60px;border-radius:50%;border:2px solid ${bc};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:${unlocked?'pointer':'not-allowed'};background:${bg};color:${col};font-family:inherit;padding:0;box-shadow:${shadow};animation:${anim};transition:all .2s;opacity:${unlocked?1:.35}`;
+    btn.disabled=!unlocked;
+    btn.innerHTML=`<span style="font-size:18px;line-height:1">${unlocked?info.emoji:'🔒'}</span><span style="font-size:10px;font-weight:700;margin-top:2px;line-height:1">${lv}</span><span style="font-size:8px;opacity:.7;line-height:1">${unlocked?done+'/5':''}</span>`;
+    if(unlocked)btn.onclick=()=>clickLevel(idx);
+    wrap.appendChild(btn);
+    path.appendChild(wrap);
+
     // コネクタライン（最後以外）
     if(idx<4){
       const line=document.createElement('div');
-      line.style.cssText='flex:1;height:3px;background:var(--bdr2);border-radius:2px;align-self:center;margin-top:24px;min-width:8px';
+      line.style.cssText='flex:1;height:3px;background:#263352;border-radius:2px;z-index:1;margin-bottom:0;min-width:8px';
       path.appendChild(line);
     }
   });
-  renderLevelCard(lvlCharPos);
-}
-
-function posLevelChar(idx,anim){/* 廃止 */}
-
-async async function clickLevel(idx){
-  if(lvlWalking)return;
-  if(!lvlUnlocked(idx)){showToast('🔒 前のレベルをクリアして解放しよう！');return;}
-  if(idx===lvlCharPos){renderLevelCard(lvlCharPos);return;}
-  lvlWalking=true;
-  const dir=idx>lvlCharPos?1:-1;
-  while(lvlCharPos!==idx){
-    lvlCharPos+=dir;
-    // キャラ位置をDOM更新
-    document.querySelectorAll('#level-path .wn-char').forEach((el,i)=>{el.textContent=i===lvlCharPos?'🧑‍🎓':' ';});
-    document.querySelectorAll('#level-path .wnode').forEach((el,i)=>{
-      const lv2=LEVELS[i];const lc2=LC[lv2];const isCur=i===lvlCharPos;
-      el.className='wnode'+(lvlUnlocked(i)?(isCur?' current':''):' locked');
-      el.style.background=lvlUnlocked(i)&&isCur?lc2+'18':'var(--bg2)';
-      el.style.borderColor=lvlUnlocked(i)?(isCur?lc2:lc2+'70'):'#1e2d4a';
-    });
-    await new Promise(r=>setTimeout(r,180));
-  }
-  lvlWalking=false;
   renderLevelCard(lvlCharPos);
 }
 
@@ -674,27 +662,41 @@ function initStageScreen(){
 function renderStageMap(){
   const path=document.getElementById('stage-path');
   if(!path)return;
+  path.innerHTML='';
+  path.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:44px 4px 4px;position:relative;margin-bottom:8px';
+
   const stages=lvlStages(selectedLevel);
   const lc=LC[selectedLevel];
-  let html='';
+
   stages.forEach((sc,idx)=>{
     const st=stgStatus(sc.id);const isCur=idx===stgCharPos;
     const done=st==='done';const locked=st==='locked';
-    const bc=done?'#d4a017':isCur?lc:locked?'#1e2d4a':lc+'60';
-    const col=done?'#d4a017':isCur?lc:locked?'#2d3748':lc;
-    const bg=done?'#d4a01715':isCur?lc+'20':'var(--bg2)';
-    const em=done?'✓':locked?'🔒':sc.emoji;
-    html+=`<div class="map-node-wrap" onclick="${!locked?`clickStage(${idx})`:''}">
-      ${isCur?'<div class="map-char">🧑‍🎓</div>':''}
-      <button class="map-btn${isCur?' is-cur':''}" style="border-color:${bc};color:${col};background:${bg}" ${locked?'disabled':''}>
-        <span class="mb-emoji">${em}</span>
-        <span class="mb-lbl">${sc.name}</span>
-      </button>
-    </div>`;
-    if(idx<4)html+='<div class="map-line"></div>';
+    const bc=done?'#d4a017':isCur?lc:locked?'#1e2d4a':lc+'70';
+    const bg=done?'#d4a01722':isCur?lc+'22':'#080d1e';
+    const col=done?'#d4a017':isCur?lc:locked?'#334155':lc;
+
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex-direction:column;align-items:center;flex:1;position:relative;z-index:2';
+
+    const charDiv=document.createElement('div');
+    charDiv.style.cssText='height:28px;display:flex;align-items:flex-end;justify-content:center;position:absolute;top:-34px;left:0;right:0;font-size:20px;pointer-events:none';
+    charDiv.textContent=isCur?'🧑‍🎓':'';
+    wrap.appendChild(charDiv);
+
+    const btn=document.createElement('button');
+    btn.style.cssText=`width:56px;height:56px;border-radius:50%;border:2px solid ${bc};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:${locked?'not-allowed':'pointer'};background:${bg};color:${col};font-family:inherit;padding:0;animation:${isCur?'pulse 2s infinite':'none'};transition:all .2s;opacity:${locked?.35:1}`;
+    btn.disabled=locked;
+    btn.innerHTML=`<span style="font-size:16px;line-height:1">${done?'✓':locked?'🔒':sc.emoji}</span><span style="font-size:8px;font-weight:700;margin-top:2px;line-height:1">${sc.name}</span>`;
+    if(!locked)btn.onclick=()=>clickStage(idx);
+    wrap.appendChild(btn);
+    path.appendChild(wrap);
+
+    if(idx<4){
+      const line=document.createElement('div');
+      line.style.cssText='flex:1;height:3px;background:#263352;border-radius:2px;z-index:1;min-width:6px';
+      path.appendChild(line);
+    }
   });
-  path.className='map-row';
-  path.innerHTML=html;
   renderStageCard(stgCharPos);
 }
 
