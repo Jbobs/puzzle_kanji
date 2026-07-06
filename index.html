@@ -77,7 +77,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 .snode.current{animation:pulse 2s infinite}
 .snode .sn-emoji{font-size:14px;line-height:1}
 .snode .sn-num{font-size:8px;font-weight:700;line-height:1;margin-top:2px;opacity:.8}
-.finb{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.35);color:var(--viol)}
+.finb{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.45);color:var(--viol);border-radius:10px;font-weight:700;box-shadow:0 2px 8px rgba(124,58,237,.2);transition:all .2s}
 .finb:not(:disabled):hover{background:rgba(124,58,237,.18)}
 .finb:disabled{opacity:.3}
 .finb.can{background:rgba(124,58,237,.15);border-color:var(--viol);color:var(--viol)}
@@ -104,10 +104,10 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 .sic-play-lg{width:100%;border:none;border-radius:10px;padding:11px;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;color:#fff;margin-bottom:8px;display:block}
 .sic-play-lg:hover{opacity:.88}
 .sic-mode-row{display:flex;gap:6px}
-.sic-mode-btn{flex:1;padding:9px 6px;border-radius:9px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:background .2s;border:1px solid;text-align:center}
-.sic-mode-en{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.4);color:#93c5fd}
+.sic-mode-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.sic-mode-en{border:1px solid rgba(59,130,246,.5);color:#93c5fd;background:rgba(59,130,246,.12)}
 .sic-mode-en:hover{background:rgba(59,130,246,.16)}
-.sic-mode-jp{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.4);color:var(--grnl)}
+.sic-mode-jp{border:1px solid rgba(16,185,129,.5);color:var(--grnl);background:rgba(16,185,129,.1)}
 .sic-mode-jp:hover{background:rgba(16,185,129,.16)}
 /* ── ウォークエリア（修正版・getBoundingClientRect不使用） ── */
 .walk-area{padding:4px 10px 10px;margin-bottom:8px}
@@ -133,6 +133,19 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 .lic-sdot{width:34px;height:34px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .lic-pbar-wrap{background:var(--sur2);border-radius:3px;height:5px;overflow:hidden;margin-bottom:12px}
 .lic-play{width:100%;border:none;border-radius:10px;padding:11px;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;color:#fff}.lic-play:hover{opacity:.88}
+
+/* ── ボタン スタイリッシュ版 ── */
+.nav-btn{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.45);border-radius:10px;color:var(--viol);padding:8px 20px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;transition:all .2s;box-shadow:0 2px 8px rgba(124,58,237,.2)}
+.nav-btn:hover:not(:disabled){background:rgba(124,58,237,.25);transform:translateY(-1px)}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.back-btn{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.4);border-radius:10px;color:var(--viol);padding:8px 14px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;transition:all .2s}
+.back-btn:hover{background:rgba(124,58,237,.22)}
+.bsm{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.4);border-radius:10px;color:var(--viol);padding:7px 12px;cursor:pointer;font-size:12px;white-space:nowrap;font-family:inherit;font-weight:700;transition:all .2s}
+.bsm:hover{background:rgba(124,58,237,.22)}
+.hunt-skip-btn{flex:1;border:1px solid rgba(59,130,246,.5);border-radius:10px;padding:10px 8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:#93c5fd;background:rgba(59,130,246,.12);box-shadow:0 2px 10px rgba(59,130,246,.2);transition:all .2s}
+.hunt-skip-btn:hover{background:rgba(59,130,246,.22);transform:translateY(-1px)}
+.hunt-give-btn{flex:1;border:1px solid rgba(239,68,68,.45);border-radius:10px;padding:10px 8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:var(--redl);background:rgba(239,68,68,.1);box-shadow:0 2px 10px rgba(239,68,68,.15);transition:all .2s}
+.hunt-give-btn:hover{background:rgba(239,68,68,.2);transform:translateY(-1px)}
 </style>
 </head>
 <body>
@@ -337,6 +350,66 @@ const STAGES=[
   {id:25,level:'N1',name:'漢字神',emoji:'🏯',cw:7},
 ];
 const DIRS=[[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+
+// ════ 日本語意味辞書（意味クイズ用） ════
+const JA_MEANINGS={
+'日本':'東アジアの島国','学校':'勉強する場所','電車':'線路を走る乗り物',
+'天気':'晴れや雨など空の状態','先生':'人に何かを教える人','男女':'男と女のこと',
+'父母':'お父さんとお母さん','山川':'山と川のこと','上下':'上と下のこと',
+'左右':'左と右のこと','人口':'そこに住む人の数','東西':'東と西のこと',
+'南北':'南と北のこと','大小':'大きいと小さいこと','前後':'前と後ろのこと',
+'国語':'自分の国の言葉','体力':'体の強さ・持久力','半年':'６ヶ月のこと',
+'年月':'長い時間のこと','半分':'２つに分けた一方','百万':'100万のこと',
+'千万':'1000万のこと','百円':'硬貨の一種','千円':'千円札のこと',
+'大人':'成長した人、子供でない人','大学':'高等教育の学校','学生':'学校で勉強する人',
+'電気':'家電や照明を動かす力','気分':'今の気持ちや体の調子','人気':'多くの人に好かれること',
+'本気':'真剣な気持ち','上手':'うまくできること','下手':'うまくできないこと',
+'右手':'右のほうの手','左手':'左のほうの手','手本':'まねするお手本',
+'山道':'山の中の道','水道':'家に水を届ける仕組み','電力':'電気のエネルギー',
+'気力':'やる気、精神的な力','学力':'勉強の力や知識量','女子':'女の子・女性',
+'男子':'男の子・男性','父子':'父親と子ども','母子':'母親と子ども',
+'天下':'世の中全体のこと','月日':'時間が過ぎること','本心':'本当の気持ち',
+'友人':'友達のこと','日本語':'日本で話される言語','中学':'小学校の次の学校',
+'中心':'真ん中のこと','中国':'日本の隣の大きな国','国道':'国が管理する道路',
+'先月':'今月の一つ前の月','学年':'学校での学年・グレード','小学':'子が最初に通う学校',
+'手足':'手と足のこと','火山':'噴火する山','水田':'稲を育てる田んぼ','手口':'やり方・方法',
+'会社':'仕事をする組織','社員':'会社で働く人','会員':'グループのメンバー',
+'店員':'お店で働く人','店長':'お店の責任者','社長':'会社のトップ',
+'入口':'入るための場所','出口':'出るための場所','入社':'会社で働き始めること',
+'帰国':'自分の国に帰ること','入学':'学校に入ること','春夏':'春と夏のこと',
+'秋冬':'秋と冬のこと','朝昼':'朝と昼のこと','来週':'次の週',
+'毎週':'毎週のこと','毎朝':'毎日の朝のこと','毎年':'毎年のこと',
+'毎日':'毎日のこと','来年':'次の年','朝食':'朝ごはん','夜食':'夜遅く食べるもの',
+'勉強':'学ぶこと・学習','思考':'考えること','有名':'多くの人に知られること',
+'明暗':'明るさと暗さ','白黒':'白と黒のこと','早速':'すぐに・急いで',
+'近所':'家の近くの場所','住所':'住んでいる場所の情報','長所':'得意なこと・良い点',
+'短所':'苦手なこと・弱い点','長短':'長短や良し悪し','売買':'売り買いすること',
+'飲食':'飲んだり食べたりすること','広大':'とても広いこと','重大':'とても大切なこと',
+'数学':'数や計算を学ぶ学問','新人':'新しく入ってきた人','強大':'強くて大きいこと',
+'毎月':'毎月のこと','近年':'最近の数年','新年':'新しい年・お正月',
+'明日':'今日の次の日','朝日':'朝の太陽','昼食':'お昼ごはん',
+'変化':'変わること','以上':'それより上のこと','以下':'それより下のこと',
+'以前':'前の時期','以後':'その後の時期','基本':'一番大切な基礎',
+'感動':'心が強く動かされること','感覚':'感じること・センス','記録':'データとして残すこと',
+'記念':'大事なことを記すこと','特別':'他と違う・普通でない','特産':'その地域特有のもの',
+'発展':'成長して良くなること','発見':'新しいものを見つけること','練習':'繰り返して上手になること',
+'専門':'特別に詳しい分野','改革':'古いものを新しく変えること','案内':'道や情報を教えること',
+'向上':'より良くなること','反省':'自分の行動を振り返ること','共同':'みんなで一緒にすること',
+'低下':'下がること・悪くなること','格差':'差が広がること','化学':'物質を研究する学問',
+'続行':'続けること','設定':'決めること・準備','盛大':'立派で大規模なこと',
+'増加':'数が増えること','拡大':'広がること・大きくなること','縮小':'小さくすること',
+'援助':'助けること・支援','採用':'選んで使うこと','破壊':'壊すこと',
+'症状':'病気のサイン','疑問':'疑うこと・わからないこと','暴力':'力で傷つけること',
+'炎上':'燃え上がること','脱出':'逃げること','緊張':'心と体が固くなること',
+'絶対':'必ず・例外なく','転落':'落ちること','鉄道':'電車の路線',
+'銀行':'お金を預ける場所','恋愛':'好きな人を愛すること','幸運':'運が良いこと',
+'危機':'大変な状況','増大':'大きく増えること',
+'哲学':'人生や世界を深く考える学問','壮大':'規模が大きくて立派なこと',
+'廉価':'値段が安いこと','憤慨':'とても怒ること','摂取':'体に取り入れること',
+'渇望':'強く望むこと','盲点':'気づいていない弱点','粛清':'組織から排除すること',
+'緻密':'細かくて丁寧なこと','錯覚':'間違えて感じること','衷心':'心の底から',
+};
+
 
 // ── 日本語意味辞書（意味クイズ用）──
 const MJ={
@@ -558,7 +631,7 @@ function renderLevelMap(){
   if(!path)return;
   path.innerHTML='';
   // コンテナをインラインスタイルで設定
-  path.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:44px 4px 4px;position:relative;margin-bottom:8px';
+  path.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:52px 4px 8px;position:relative;margin-bottom:12px';
 
   LEVELS.forEach((lv,idx)=>{
     const lc=LC[lv];const info=LEVEL_INFO[lv];
@@ -582,9 +655,9 @@ function renderLevelMap(){
     const col=unlocked?lc:'#334155';
     const shadow=isCur?`0 0 16px ${lc}88`:'none';
     const anim=isCur?'pulse 2s infinite':'none';
-    btn.style.cssText=`width:60px;height:60px;border-radius:50%;border:2px solid ${bc};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:${unlocked?'pointer':'not-allowed'};background:${bg};color:${col};font-family:inherit;padding:0;box-shadow:${shadow};animation:${anim};transition:all .2s;opacity:${unlocked?1:.35}`;
+    btn.style.cssText=`width:72px;height:72px;border-radius:50%;border:2px solid ${bc};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:${unlocked?'pointer':'not-allowed'};background:${bg};color:${col};font-family:inherit;padding:0;box-shadow:${shadow};animation:${anim};transition:all .2s;opacity:${unlocked?1:.35}`;
     btn.disabled=!unlocked;
-    btn.innerHTML=`<span style="font-size:18px;line-height:1">${unlocked?info.emoji:'🔒'}</span><span style="font-size:10px;font-weight:700;margin-top:2px;line-height:1">${lv}</span><span style="font-size:8px;opacity:.7;line-height:1">${unlocked?done+'/5':''}</span>`;
+    btn.innerHTML=`<span style="font-size:22px;line-height:1">${unlocked?info.emoji:'🔒'}</span><span style="font-size:11px;font-weight:700;margin-top:3px;line-height:1">${lv}</span><span style="font-size:9px;opacity:.7;line-height:1;margin-top:1px">${unlocked?done+'/5':''}</span>`;
     if(unlocked)btn.onclick=()=>clickLevel(idx);
     wrap.appendChild(btn);
     path.appendChild(wrap);
@@ -663,7 +736,7 @@ function renderStageMap(){
   const path=document.getElementById('stage-path');
   if(!path)return;
   path.innerHTML='';
-  path.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:44px 4px 4px;position:relative;margin-bottom:8px';
+  path.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:52px 4px 8px;position:relative;margin-bottom:12px';
 
   const stages=lvlStages(selectedLevel);
   const lc=LC[selectedLevel];
@@ -763,12 +836,11 @@ function backToStageSelect(){
 // ════════════════════════════════════════════
 function buildGrid(stage){
   const p=pool(stage.level);
-  const curP=KP[stage.level]; // 現在レベルの漢字のみ
-  const allWL=cumWL(stage.level).filter(e=>e.w.split('').every(k=>p.includes(k)));
-  // 現在レベルの漢字を多く含む語を優先
-  const curWords=allWL.filter(e=>e.w.split('').some(k=>curP.includes(k))).sort(()=>Math.random()-.5);
-  const otherWords=allWL.filter(e=>!curWords.includes(e)).sort(()=>Math.random()-.5);
-  const shuffled=[...curWords,...otherWords];
+  const curP=KP[stage.level]; // このレベルの漢字のみ
+  // 語の優先順位: このレベルのWL → 前レベルのWL
+  const thisLvWords=(WL[stage.level]||[]).filter(e=>e.w.split('').every(k=>p.includes(k))).sort(()=>Math.random()-.5);
+  const prevLvWords=LEVELS.slice(0,LEVELS.indexOf(stage.level)).flatMap(l=>WL[l]||[]).filter(e=>e.w.split('').every(k=>p.includes(k))).sort(()=>Math.random()-.5);
+  const shuffled=[...thisLvWords,...prevLvWords];
   const g=Array(5).fill(null).map(()=>Array(5).fill(null));
   const used=new Set();const placed=[];
   for(const entry of shuffled){
@@ -786,15 +858,16 @@ function buildGrid(stage){
     chosen.forEach(([nr,nc],i)=>{g[nr][nc]=kk[i];used.add(kk[i]);});
     placed.push({word:entry.w,reading:entry.r,meaning:entry.m,cells:chosen.map(([r,c])=>({r,c}))});
   }
-  // フィラー: 現在レベル70%、累積30%
+  // フィラー: 80%→このレベル漢字、20%→前レベル漢字
   const curUnused=curP.filter(k=>!used.has(k)).sort(()=>Math.random()-.5);
   const otherUnused=p.filter(k=>!used.has(k)&&!curP.includes(k)).sort(()=>Math.random()-.5);
   let ci=0,oi=0;
   for(let r=0;r<5;r++)for(let c=0;c<5;c++){
     if(g[r][c]===null){
-      if(Math.random()<0.7&&ci<curUnused.length) g[r][c]=curUnused[ci++];
-      else if(oi<otherUnused.length) g[r][c]=otherUnused[oi++];
-      else if(ci<curUnused.length) g[r][c]=curUnused[ci++];
+      const useCur=Math.random()<0.82||oi>=otherUnused.length;
+      if(useCur&&ci<curUnused.length)g[r][c]=curUnused[ci++];
+      else if(oi<otherUnused.length)g[r][c]=otherUnused[oi++];
+      else if(ci<curUnused.length)g[r][c]=curUnused[ci++];
       else g[r][c]=curP[Math.floor(Math.random()*curP.length)];
     }
   }
@@ -930,7 +1003,8 @@ async function submit(){
     if(word===target.word){
       huntScore.correct++;sfx('ok');
       fWords.push({...target,cells:s});ref();
-      showFbk('ok',word,target.reading,'正解！ 🎉');
+      const okMsgs=['🎉 素晴らしい！','⭐ 正解！ さすが！','✨ 完璧！','🔥 やった！','💫 正解！'];
+      showFbk('ok',word,target.reading,okMsgs[Math.floor(Math.random()*okMsgs.length)]);
       setWD('hint','正解！');
       huntIdx++;
       setTimeout(()=>{showFbk('ok','','','');showHuntClue();},1300);
@@ -942,7 +1016,8 @@ async function submit(){
       hint.style.display='block';
       if(huntHintTimer)clearTimeout(huntHintTimer);
       huntHintTimer=setTimeout(()=>{hint.style.display='none';},3000);
-      showFbk('err',word,null,`違います — もう一度試してみよう`);
+      const ngMsgs=['💪 もう一度！','🤔 惜しい！違うよ','😅 それじゃない！','🧠 よく考えて！'];
+      showFbk('err',word,null,ngMsgs[Math.floor(Math.random()*ngMsgs.length)]);
     }
     return;
   }
@@ -957,7 +1032,8 @@ async function submit(){
   else{sfx('ng');showFbk('err',word,null,'単語として認識されませんでした');setWD('hint','漢字を直線でなぞって単語を作ろう');}
 }
 function accept(wd){
-  fWords.push(wd);ref();sfx('ok');showFbk('ok',wd.word,wd.reading,wd.meaning);setWD('hint','漢字を直線でなぞって単語を作ろう');
+  fWords.push(wd);ref();sfx('ok');const _oms=['🎉 見つけた！','⭐ 正解！','✨ いいね！','🔥 そこだ！'];
+  showFbk('ok',wd.word,wd.reading,_oms[Math.floor(Math.random()*_oms.length)]+' '+wd.meaning);setWD('hint','漢字を直線でなぞって単語を作ろう');
   updProg();addChip(wd);
   updateFinBtn();
 }
@@ -1052,8 +1128,8 @@ function showHuntClue(){
   const el=document.getElementById('hunt-clue-word');
   let clueText='';
   if(huntMode==='jp'){
-    // 意味クイズ: 日本語の意味をヒントにする
-    clueText=MJ[w.word]||w.meaning.split(/[;,]/)[0].trim();
+    // 意味クイズ: 日本語のみ（JA_MEANINGSを使用）
+    clueText=JA_MEANINGS[w.word]||`${w.reading}で書く漢字`;
   }else{
     // 英語モード
     clueText=w.meaning.split(/[;,]/)[0].trim();
