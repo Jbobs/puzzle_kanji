@@ -28,7 +28,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
 
 /* ── SHARED ── */
-.screen{display:none;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto;padding:16px 14px}
+.screen{display:none;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto;padding:16px 14px;overflow-x:hidden}
 .screen.active{display:flex}
 .title-grad{background:linear-gradient(90deg,#a78bfa,#60a5fa,#34d399,#a78bfa);background-size:300% auto;
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 4s linear infinite;
@@ -146,6 +146,17 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 .hunt-skip-btn:hover{background:rgba(59,130,246,.22);transform:translateY(-1px)}
 .hunt-give-btn{flex:1;border:1px solid rgba(239,68,68,.45);border-radius:10px;padding:10px 8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:var(--redl);background:rgba(239,68,68,.1);box-shadow:0 2px 10px rgba(239,68,68,.15);transition:all .2s}
 .hunt-give-btn:hover{background:rgba(239,68,68,.2);transform:translateY(-1px)}
+
+
+/* ── MODAL BASE CSS ── */
+#cmod{position:fixed;inset:0;background:rgba(0,0,0,.94);display:none;align-items:flex-start;justify-content:center;z-index:210;padding:20px;overflow-y:auto}
+#wmod{position:fixed;inset:0;background:rgba(0,0,0,.94);display:none;align-items:center;justify-content:center;z-index:320;padding:20px}
+#voc{position:fixed;inset:0;background:rgba(0,0,0,.96);display:none;flex-direction:column;z-index:280}
+#cmod.open,#wmod.open{display:flex}#voc.open{display:flex;flex-direction:column}
+
+.fwchips{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+
+.cr-sep{font-size:9px;color:var(--txt3);opacity:.5;flex-shrink:0;margin:0 2px}
 </style>
 </head>
 <body>
@@ -206,7 +217,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 </div>
 
 <!-- ═══ GAME SCREEN ═══ -->
-<div id="game-screen" class="screen">
+<div id="game-screen" class="screen" style="overflow-y:auto;max-height:100vh">
   <div class="ghdr">
     <button class="bsm" onclick="backToStageSelect()">← Map</button>
     <div style="flex:1;min-width:0">
@@ -239,12 +250,9 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
   <div id="clear-banner" class="clear-banner">✓ クリア済み — 言葉の位置を確認できます</div>
   <!-- 通常モードボタン -->
   <div id="normal-btns">
-    <div class="arow">
-      <button class="ab hb" id="hbtn" onclick="doHint()">💡 ヒント <span style="font-size:10px;opacity:.7" id="hleft">(3回)</span></button>
-      <button class="ab finb" id="finbtn" onclick="doFinish()" disabled>🎌 終了</button>
-    </div>
-    <div style="margin-bottom:7px">
-      <button class="ab gb" id="gubtn" onclick="doGiveUp()" style="width:100%;font-size:11px;padding:6px">🏳 ギブアップ（残りの言葉を見る）</button>
+    <div class="arow" style="gap:8px">
+      <button class="ab hb" id="hbtn" onclick="doHint()">💡 ヒント<span id="hleft" style="font-size:10px;margin-left:4px;opacity:.6">(3回)</span></button>
+      <button class="ab gb" id="gubtn" onclick="doGiveUp()">🏳 ギブアップ</button>
     </div>
   </div>
   <!-- 英語モードボタン -->
@@ -305,7 +313,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
     </div>
     <div class="cbtns" style="gap:5px;flex-wrap:wrap">
       <button class="cmap" style="font-size:11px;padding:8px 10px" onclick="returnToGrid()">🔍 グリッドを見る</button>
-      <button class="cmap" style="font-size:11px;padding:8px 10px" onclick="backToStageSelect();document.getElementById('cmod').classList.remove('open')">🗺 Map</button>
+      <button class="cmap" style="font-size:11px;padding:8px 10px" onclick="backToStageSelect();closeModal('cmod')">🗺 Map</button>
       <button class="cmap" style="font-size:11px;padding:8px 10px;color:var(--ambl);border-color:rgba(245,158,11,.3)" onclick="openVocFromComplete()">📚</button>
       <button class="cnxt" style="font-size:12px;padding:8px 12px" id="cnxt" onclick="goNext()">次へ →</button>
     </div>
@@ -719,6 +727,7 @@ function enterLevel(idx){
 }
 
 // ── STAGE SELECT ──
+function initStageSelect(){return initStageScreen();}
 function initStageScreen(){
   const lv=selectedLevel;
   const lc=LC[lv];
@@ -826,7 +835,7 @@ function showLevelSelect(){
 }
 
 function backToStageSelect(){
-  document.getElementById('cmod').classList.remove('open');
+  closeModal('cmod');
   showScreen('stage-screen');
   initStageScreen();
 }
@@ -916,7 +925,7 @@ async function beginStage(sid){
   showScreen('game-screen');
   const lc=LC[sc.level];
   document.getElementById('shdr').innerHTML=`<span style="font-size:15px">${sc.emoji}</span><span style="font-weight:700;font-size:14px">S${sc.id} ${sc.name}</span><span class="lb" style="background:${lc}20;border-color:${lc}60;color:${lc};font-size:9px">${sc.level}</span>`;
-  document.getElementById('sgoal').textContent=`3語以上で終了可能（目標: ${sc.cw}語）`;
+  document.getElementById('sgoal').textContent=`目標 ${sc.cw}語 / 全語発見でクリア！`;
   document.getElementById('pf').textContent='0';document.getElementById('pt').textContent='?';document.getElementById('pc').textContent='';
   document.getElementById('pfill').style.width='0%';document.getElementById('pfill').style.background=`linear-gradient(90deg,${lc},var(--grn))`;
   document.getElementById('fwrap').style.display='none';document.getElementById('fwchips').innerHTML='';document.getElementById('fbkarea').innerHTML='';
@@ -924,8 +933,6 @@ async function beginStage(sid){
   document.getElementById('hbtn').disabled=false;
   const _gu=document.getElementById('gubtn');
   _gu.disabled=false;_gu.style.display='';_gu.textContent='🏳 ギブアップ（残りの言葉を見る）';_gu.onclick=doGiveUp;
-  const _fin=document.getElementById('finbtn');
-  _fin.disabled=true;_fin.className='ab finb';_fin.textContent='🎌 終了';_fin.onclick=doFinish;
   document.getElementById('clear-banner').style.display='none';
   setWD('hint','漢字を直線でなぞって単語を作ろう');
   // Hunt UI リセット
@@ -1035,28 +1042,25 @@ function accept(wd){
   fWords.push(wd);ref();sfx('ok');const _oms=['🎉 見つけた！','⭐ 正解！','✨ いいね！','🔥 そこだ！'];
   showFbk('ok',wd.word,wd.reading,_oms[Math.floor(Math.random()*_oms.length)]+' '+wd.meaning);setWD('hint','漢字を直線でなぞって単語を作ろう');
   updProg();addChip(wd);
-  updateFinBtn();
+  // 全語発見でパーフェクト自動クリア
+  if(!givenUp&&kWords.length>0&&kWords.every(w=>fWords.some(f=>f.word===w.word))){
+    prog={u:Math.max(prog.u,cStage.id+1),c:[...new Set([...prog.c,cStage.id])]};saveP();
+    setTimeout(()=>showComplete(false),700);
+  }
 }
 function updProg(){
   const found=fWords.length,total=Math.max(totW,found);
   document.getElementById('pfill').style.width=`${total>0?Math.min((found/total)*100,100):0}%`;
   document.getElementById('pf').textContent=found;document.getElementById('pt').textContent=total>0?total:'?';
   document.getElementById('pc').textContent=`目標:${cStage?.cw}語`;
-  updateFinBtn();
 }
-function updateFinBtn(){
-  const selfound=fWords.filter(w=>!w.gu).length;
-  const btn=document.getElementById('finbtn');if(!btn)return;
-  const MIN=3;
-  btn.disabled=selfound<MIN;
-  btn.className='ab finb'+(selfound>=cStage.cw?' goal':selfound>=MIN?' can':'');
-  if(selfound===MIN&&MIN<cStage.cw)showToast(`💡 ${MIN}語達成！終了ボタンが使えます`);
+語達成！終了ボタンが使えます`);
   if(selfound===cStage.cw)showToast(`🎯 目標達成！いつでも終了できます`);
 }
 function addChip(wd){
   const wrap=document.getElementById('fwchips');const chip=document.createElement('div');
   chip.className=`chip ${wd.gu?'g':'n'}`;
-  chip.innerHTML=`<span class="cw">${wd.word}</span><span class="cr">${wd.reading||''}</span><span class="ccp" onclick="event.stopPropagation();cpWord('${wd.word}')">📋</span>`;
+  chip.innerHTML=`<span class="cw">${wd.word}</span><span class="cr-sep">·</span><span class="cr">${wd.reading||''}</span><span class="ccp" onclick="event.stopPropagation();cpWord('${wd.word}')">📋</span>`;
   chip.addEventListener('click',()=>openWM(wd));
   wrap.appendChild(chip);document.getElementById('fwrap').style.display='block';
 }
@@ -1081,10 +1085,7 @@ function doHint(){
   if(hTimer)clearTimeout(hTimer);
   hTimer=setTimeout(()=>{cells.forEach(({r,c})=>{document.getElementById('kg')?.querySelector(`[data-r="${r}"][data-c="${c}"]`)?.classList.remove('hc');});ref();},3000);
 }
-function doFinish(){
-  const selfound=fWords.filter(w=>!w.gu).length;
-  if(selfound<3){showToast('あと'+(3-selfound)+'語見つけてから終了できます');return;}
-  prog={u:Math.max(prog.u,cStage.id+1),c:[...new Set([...prog.c,cStage.id])]};saveP();
+prog={u:Math.max(prog.u,cStage.id+1),c:[...new Set([...prog.c,cStage.id])]};saveP();
   showComplete(false);
 }
 // ════════════════════════════════════════════
@@ -1184,7 +1185,7 @@ function showHuntComplete(){
   }).join('');
   document.getElementById('cmissed').style.display='none';
   document.getElementById('cnxt').style.display='none';
-  document.getElementById('cmod').classList.add('open');
+  openModal('cmod');
   huntMode=false;
   // UI戻す
   document.getElementById('hunt-card').classList.remove('active');
@@ -1216,7 +1217,7 @@ function showComplete(isGU){
   document.getElementById('cchips').innerHTML=fWords.map(w=>{
     const saved=vocab.some(v=>v.word===w.word);
     return`<div class="cword-row${w.gu?' g':''}" onclick="openWMFromComplete('${w.word}')">
-      <span class="cwrd">${w.word}</span><span class="crdr">${w.reading||''}</span>
+      <span class="cwrd">${w.word}</span><span style="font-size:9px;color:var(--txt3);margin:0 4px">·</span><span class="crdr">${w.reading||''}</span>
       <button class="csavebtn${saved?' saved':''}" onclick="event.stopPropagation();saveFromComplete('${w.word}',this)">${saved?'✓':'💾'}</button>
     </div>`;
   }).join('');
@@ -1230,10 +1231,10 @@ function showComplete(isGU){
   }else{mEl.style.display='none';}
   const hasNext=cStage.id<25&&lvlStages(selectedLevel).some(s=>s.id===cStage.id+1)||STAGES.find(s=>s.id===cStage.id+1);
   document.getElementById('cnxt').style.display=cStage.id<25?'':'none';
-  document.getElementById('cmod').classList.add('open');
+  openModal('cmod');
 }
 function goNext(){
-  document.getElementById('cmod').classList.remove('open');
+  closeModal('cmod');
   const next=STAGES.find(s=>s.id===cStage.id+1);
   if(next){
     // 同レベルか次のレベルか
@@ -1249,7 +1250,7 @@ function saveAllFound(){
   setVoc(vocab);showToast(cnt>0?`💾 ${cnt}語を保存しました`:'すでに全語保存済みです');
   document.querySelectorAll('.csavebtn').forEach(b=>{b.textContent='✓';b.classList.add('saved');});
 }
-function openVocFromComplete(){document.getElementById('cmod').classList.remove('open');openVoc();}
+function openVocFromComplete(){closeModal('cmod');openVoc();}
 
 // ════════════════════════════════════════════
 // WORD MODAL
@@ -1271,7 +1272,7 @@ async function openWM(wd){
   document.getElementById('wmsenses').innerHTML=`<div class="ldg"><span class="sp"></span>読み込み中...</div>`;
   document.getElementById('wmexs').innerHTML=`<div class="ldg"><span class="sp"></span>例文を検索中...</div>`;
   document.getElementById('wmextlinks').innerHTML='';
-  document.getElementById('wmod').classList.add('open');
+  openModal('wmod');
   const[details,examples]=await Promise.all([fetchWordFull(wd.word),fetchExamples(wd.word)]);
   if(details?.reading&&!wd.reading)document.getElementById('wmr').textContent=details.reading;
   let badges='';
@@ -1284,14 +1285,14 @@ async function openWM(wd){
   else{document.getElementById('wmexs').innerHTML=`<a class="ex-link" href="https://jisho.org/search/${encodeURIComponent(wd.word)}%23sentences" target="_blank" rel="noopener">Jisho.orgで例文を見る →</a>`;}
   document.getElementById('wmextlinks').innerHTML=`<a class="extlink" href="https://jisho.org/search/${encodeURIComponent(wd.word)}" target="_blank" rel="noopener">🔗 Jisho</a><a class="extlink" href="https://tatoeba.org/ja/sentences/search?from=jpn&to=eng&query=${encodeURIComponent(wd.word)}" target="_blank" rel="noopener">📚 例文</a><a class="extlink" href="https://dictionary.goo.ne.jp/word/${encodeURIComponent(wd.word)}/" target="_blank" rel="noopener">📘 goo辞書</a>`;
 }
-function closeWM(){document.getElementById('wmod').classList.remove('open');}
+function closeWM(){closeModal('wmod');}
 function returnToGrid(){
-  document.getElementById('cmod').classList.remove('open');
+  closeAllModals();
   showScreen('game-screen');
   document.getElementById('clear-banner').style.display='block';
-  // 終了ボタンを「もう一度終了」に変更（再クリア不要なので）
-  const finbtn=document.getElementById('finbtn');
-  if(finbtn){finbtn.disabled=false;finbtn.textContent='🗺 マップへ戻る';finbtn.onclick=()=>{backToStageSelect();};finbtn.className='ab can';}
+  const gubtn=document.getElementById('gubtn');
+  if(gubtn){gubtn.style.display='none';}
+}}
   const gubtn=document.getElementById('gubtn');
   if(gubtn){gubtn.style.display='none';}
 }
@@ -1310,8 +1311,8 @@ function saveVoc(wd,silent=false){
   setVoc(voc);showToast(`💾「${wd.word}」を単語帳に保存しました！`);
 }
 function delVoc(word){setVoc(getVoc().filter(w=>w.word!==word));renderVoc();showToast(`「${word}」を削除しました`);}
-function openVoc(){renderVoc();document.getElementById('voc').classList.add('open');}
-function closeVoc(){document.getElementById('voc').classList.remove('open');}
+function openVoc(){renderVoc();openModal('voc');}
+function closeVoc(){closeModal('voc');}
 function renderVoc(){
   const voc=getVoc();document.getElementById('vcnt').textContent=`(${voc.length}語)`;
   const body=document.getElementById('vbody');
@@ -1336,6 +1337,26 @@ function renderVoc(){
       </div>`).join('');
     return`<div class="vlg"><div class="vll"><span class="lb" style="background:${lc}20;border-color:${lc}60;color:${lc}">${lv}</span> ${byLv[lv].length}語</div>${cards}</div>`;
   }).join('');
+}
+
+// ════════════════════════════════════════════
+// MODAL 管理 - 排他制御 + スクロールロック
+// ════════════════════════════════════════════
+const MODALS = ['cmod','wmod','voc'];
+function openModal(id){
+  // 他のモーダルが残っていても body スクロールをロック
+  document.body.style.overflow='hidden';
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  // 全モーダルが閉じたらスクロール解除
+  const anyOpen = MODALS.some(m=>document.getElementById(m)?.classList.contains('open'));
+  if(!anyOpen) document.body.style.overflow='';
+}
+function closeAllModals(){
+  MODALS.forEach(m=>document.getElementById(m)?.classList.remove('open'));
+  document.body.style.overflow='';
 }
 
 // ════════════════════════════════════════════
