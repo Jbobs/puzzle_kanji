@@ -919,9 +919,9 @@ async function getJishoDetail(word){
 // ════════════════════════════════════════════
 // GAME
 // ════════════════════════════════════════════
-async function beginStage(sid){
+async function beginStage(sid,quizMode=false){
   const sc=STAGES.find(s=>s.id===sid);if(!sc)return;
-  cStage=sc;G=null;kWords=[];fWords=[];totW=0;sel=[];selDir=null;isDrag=false;givenUp=false;hLeft=3;
+  cStage=sc;G=null;kWords=[];fWords=[];totW=0;sel=[];selDir=null;isDrag=false;givenUp=false;hLeft=3;huntMode=quizMode;
   showScreen('game-screen');
   const lc=LC[sc.level];
   document.getElementById('shdr').innerHTML=`<span style="font-size:15px">${sc.emoji}</span><span style="font-weight:700;font-size:14px">S${sc.id} ${sc.name}</span><span class="lb" style="background:${lc}20;border-color:${lc}60;color:${lc};font-size:9px">${sc.level}</span>`;
@@ -1086,8 +1086,7 @@ function doHint(){
 // 英語モードモード
 // ════════════════════════════════════════════
 function beginQuiz(sid,mode='en'){
-  huntMode=mode; // 'en'=英語モード, 'ja'=日本語意味モード
-  beginStage(sid);
+  beginStage(sid,mode);
 }
 
 function setupHunt(){
