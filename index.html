@@ -1054,9 +1054,6 @@ function updProg(){
   document.getElementById('pf').textContent=found;document.getElementById('pt').textContent=total>0?total:'?';
   document.getElementById('pc').textContent=`目標:${cStage?.cw}語`;
 }
-語達成！終了ボタンが使えます`);
-  if(selfound===cStage.cw)showToast(`🎯 目標達成！いつでも終了できます`);
-}
 function addChip(wd){
   const wrap=document.getElementById('fwchips');const chip=document.createElement('div');
   chip.className=`chip ${wd.gu?'g':'n'}`;
@@ -1084,9 +1081,6 @@ function doHint(){
   showToast(`💡 ${pick.word.length}文字の言葉があります`);
   if(hTimer)clearTimeout(hTimer);
   hTimer=setTimeout(()=>{cells.forEach(({r,c})=>{document.getElementById('kg')?.querySelector(`[data-r="${r}"][data-c="${c}"]`)?.classList.remove('hc');});ref();},3000);
-}
-prog={u:Math.max(prog.u,cStage.id+1),c:[...new Set([...prog.c,cStage.id])]};saveP();
-  showComplete(false);
 }
 // ════════════════════════════════════════════
 // 英語モードモード
@@ -1290,11 +1284,8 @@ function returnToGrid(){
   closeAllModals();
   showScreen('game-screen');
   document.getElementById('clear-banner').style.display='block';
-  const gubtn=document.getElementById('gubtn');
-  if(gubtn){gubtn.style.display='none';}
-}}
-  const gubtn=document.getElementById('gubtn');
-  if(gubtn){gubtn.style.display='none';}
+  const _gubtn=document.getElementById('gubtn');
+  if(_gubtn){_gubtn.style.display='none';}
 }
 async function cpWord(word){try{await navigator.clipboard.writeText(word);}catch{const t=document.createElement('textarea');t.value=word;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);}showToast(`「${word}」をコピーしました`);}
 function cpCur(){if(curW)cpWord(curW.word);}
