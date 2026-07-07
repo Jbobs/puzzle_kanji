@@ -731,6 +731,18 @@ function renderLevelCard(idx){
   </div>`;
 }
 
+function clickLevel(idx){
+  if(!lvlUnlocked(idx)){showToast('🔒 前のレベルをクリアして解放しよう！');return;}
+  // キャラをアニメーション移動
+  const move=()=>{
+    if(lvlCharPos===idx){renderLevelMap();return;}
+    lvlCharPos+=(idx>lvlCharPos?1:-1);
+    renderLevelMap();
+    setTimeout(move,180);
+  };
+  move();
+}
+
 function enterLevel(idx){
   selectedLevel=LEVELS[idx];
   showScreen('stage-screen');
