@@ -159,14 +159,14 @@ html,body{height:100%;background:var(--bg);color:var(--txt);
 .cr-sep{font-size:9px;color:var(--txt3);opacity:.5;flex-shrink:0;margin:0 2px}
 
 /* hunt-card: デフォルト非表示、.active で表示 */
-.hunt-card{display:none;background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(124,58,237,.12));border:1px solid rgba(59,130,246,.45);border-radius:14px;padding:16px;text-align:center;margin-bottom:7px}
-.hunt-card.active{display:block}
-.hunt-sublabel{font-size:10px;color:var(--txt3);letter-spacing:1px;margin-bottom:6px}
-.hunt-clue-word{font-size:26px;font-weight:700;color:var(--txt);margin-bottom:10px;line-height:1.3}
+.hunt-card{display:none;background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(124,58,237,.12));border:1px solid rgba(59,130,246,.45);border-radius:14px;padding:16px;text-align:center;margin-bottom:7px;min-height:100px}
+.hunt-card.active{display:block!important}
+.hunt-sublabel{font-size:10px;color:#94a3b8;letter-spacing:1px;margin-bottom:8px;display:block}
+.hunt-clue-word{font-size:26px;font-weight:700;color:#e2e8f0!important;margin-bottom:10px;line-height:1.3;display:block;min-height:36px}
 .hunt-meta{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
 .hunt-chars-badge{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);border-radius:10px;padding:3px 12px;font-size:11px;color:#93c5fd;font-weight:600}
-.hunt-prog-txt{font-size:12px;color:var(--txt3)}
-.hunt-hint-txt{font-size:11px;color:var(--txt3);margin-top:8px;display:none}
+.hunt-prog-txt{font-size:12px;color:#94a3b8}
+.hunt-hint-txt{font-size:11px;color:#94a3b8;margin-top:8px;display:none}
 .hunt-row{display:flex;gap:6px;margin-bottom:7px}
 </style>
 </head>
@@ -1112,7 +1112,10 @@ function setupHunt(){
   document.getElementById('hunt-btns').style.display='';
   document.getElementById('fwrap').style.display='none';
   // 進捗表示を変更
-  document.getElementById('sgoal').textContent=huntMode==='jp'?'📖 意味クイズ — 日本語の意味から探せ！':'🔍 英語クイズ — 英語の意味から探せ！';
+  document.getElementById('sgoal').textContent=huntMode==='jp'?'🈶 意味クイズ — 日本語の意味から探せ！':'🔤 英語クイズ — 英語の意味から探せ！';
+  // hunt-card のラベルも更新
+  const _sl=document.querySelector('#hunt-card .hunt-sublabel');
+  if(_sl)_sl.textContent=huntMode==='jp'?'🈶 日本語意味クイズ — ヒントから漢字を探せ！':'🔤 英語クイズ — この日本語熟語を探せ！';
   document.getElementById('pc').textContent='';
   if(huntWords.length===0){
     document.getElementById('hunt-clue-word').textContent='語彙データが不足しています';
@@ -1139,8 +1142,8 @@ function showHuntClue(){
     // 英語モード
     clueText=w.meaning.split(/[;,]/)[0].trim();
   }
-  el.textContent=clueText;
-  el.style.fontSize=clueText.length>20?'18px':'24px';
+  el.textContent=clueText||'（ヒントを取得中...）';
+  el.style.cssText=`font-size:${clueText.length>20?'18px':'24px'};font-weight:700;color:#e2e8f0;display:block;margin-bottom:10px;line-height:1.3`;
   document.getElementById('hunt-chars').textContent=`${w.word.length}文字の熟語`;
   document.getElementById('hunt-prog').textContent=`${huntIdx+1} / ${huntWords.length}問`;
   document.getElementById('hunt-hint').style.display='none';
@@ -1193,7 +1196,6 @@ function showHuntComplete(){
   huntMode=false;
   // UI戻す
   document.getElementById('hunt-card').classList.remove('active');
-  document.getElementById('hunt-card').innerHTML=''; // コンテンツもリセット
   document.getElementById('wd').style.display='';
   document.getElementById('normal-btns').style.display='';
   document.getElementById('hunt-btns').style.display='none';
@@ -1387,8 +1389,9 @@ document.addEventListener('keydown',e=>{
 // INIT
 // ════════════════════════════════════════════
 // レベルcharPosを最後の解放レベルに初期化
-lvlCharPos=LEVELS.findLastIndex((_,i)=>lvlUnlocked(i));
-if(lvlCharPos<0)lvlCharPos=0;
+// findLastIndex の互換対応
+lvlCharPos=0;
+for(let _i=LEVELS.length-1;_i>=0;_i--){if(lvlUnlocked(_i)){lvlCharPos=_i;break;}}
 initLevelScreen();
 </script>
 </body>
